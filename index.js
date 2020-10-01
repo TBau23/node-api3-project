@@ -26,17 +26,29 @@ const express = require('express');
 
 const userRouter = require('./users/userRouter');
 
-const server = express();
+const server = require('./server.js')
 
 server.use(express.json());
 
-server.use("/api/users", userRouter);
+
+
+function logger(req, res, next) {
+    console.log(
+      `[${new Date().toISOString()}] ${req.method} 
+      to ${req.url} from ${req.get('Origin')}`
+    );
+    
+    next();
+  }
+  
+//   server.use(logger);
+  server.use("/api/users",logger, userRouter);
 
 server.get('/', (req, res) => {
     res.status(200).json({ message: 'Server is running just for you my guy...'});
 })
 
-const port = 2000;
+const port = process.env.PORT || 2000;
 
 server.listen(port, () => {
     console.log('\n*** Server Running on http://localhost:2000***\n')

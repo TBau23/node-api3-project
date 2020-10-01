@@ -1,4 +1,5 @@
 const express = require('express');
+const server = require('../server');
 
 const db = require('./userDb');
 
@@ -36,7 +37,7 @@ router.get('/', (req, res) => {
   // do your magic!
   db.get()
   .then(users => {
-    res.status(200).json({users})
+    res.status(200).json(users)
   })
   .catch(error => {
     console.log(error)
@@ -46,16 +47,10 @@ router.get('/', (req, res) => {
   })
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validateUserId, (req, res) => {
   // do your magic!
-  db.getById(req.params.id)
-  .then(user => {
-    res.status(200).json(user)
-  })
-  .catch(err => {
-    console.log(err)
-    res.status(500).json({ message: "Error fetching user ..."})
-  })
+  
+  res.status(200).json(req.user);
 });
 
 router.get('/:id/posts', (req, res) => {
@@ -106,8 +101,20 @@ router.put('/:id', (req, res) => {
 
 //custom middleware
 
+
+
 function validateUserId(req, res, next) {
   // do your magic!
+  const id = req.params.id;
+  user = db.getById(id);
+  
+  if (req.user) {
+    
+    next();
+  } else {
+    res.status(404).json({message: "id not found, king"})
+  }
+
 }
 
 function validateUser(req, res, next) {
